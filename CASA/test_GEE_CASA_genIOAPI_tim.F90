@@ -137,11 +137,10 @@ Program CASA_genIOAPI
   do t=1,out_nsteps
      ! if(.not.write3('outname',vname3d(1),jdate,jtime,in_co2_flux1(:,:,t))) then
      in_co2_flux_per_grid(:,:,t) = in_co2_flux_per_grid(:,:,t) *83259093
-     if(.not.write3('outname',vname3d(1),jdate,jtime,in_co2_flux_per_grid(:,:,t))) then
+     if(.not.write3('outname',vname3d(1),jdate,jtime,in_co2_flux_per_grid(1:NCOLS-1, 2:NROWS-1, t))) then
         print*,'writing error'
         stop
      ENDIF
-     print*, 'min in_co2_flux_per_grid this t', minval(in_co2_flux_per_grid(:,:,t))
      call nexttime(jdate,jtime,tstep3d, day, hour,year)
   enddo
 
@@ -170,7 +169,7 @@ subroutine convert_m2_to_gridcell(in_flux, out_flux, lon, lat)
 
   nlon = SIZE(in_flux, 1)  ! first dimension is longitude
   nlat = SIZE(in_flux, 2)  ! second dimension is latitude
-  ntimes = SIZE(in_flux, 3)  ! second dimension is latitude
+  ntimes = SIZE(in_flux, 3)  ! third dimension is time
 
   !--------------------------------------------------
   ! convert fluxes from umol m-2 s-1 to umol gridcell-1 s-1
