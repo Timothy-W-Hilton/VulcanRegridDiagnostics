@@ -1,3 +1,7 @@
+! these environment variables must be set:
+! outname: the I/O API file to write to
+! GRIDDESC: description of the grid for I/O API
+
 Program CASA_genIOAPI
   use netcdf
   USE M3UTILIO
