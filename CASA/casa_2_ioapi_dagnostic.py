@@ -38,5 +38,9 @@ if __name__ == "__main__":
         x_ioapi, y_ioapi, lon_ioapi, lat_ioapi))
     for this_ax in ax:
         this_ax.set_ylabel('GEE')
+    ax[0].set_ylim((0, -3.0e-7))
+    ax[1].set_ylim((0, -3.0e11))
     ax[1].set_xlabel('tstep')
-    fig.savefig('128_48.pdf')
+    fname = '{}_{}.pdf'.format(x_ioapi, y_ioapi)
+    print 'saving {}'.format(fname)
+    fig.savefig(fname)
