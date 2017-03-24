@@ -20,6 +20,7 @@ def get_casa_raw_ioapi(pt_lat=37, pt_lon=-121.25):
     lat = nc.variables['LAT'][0, 0, ...]
     nc.close()
     x, y = find_nearest_stem_xy(pt_lon, pt_lat, lon, lat)
+    (x, y) = (128, 48)
     nc = netCDF4.Dataset('/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/CASA/tim_test3.nc')
     pt_gee = nc.variables['CO2_FLUX'][:, 0, x, y]
     return x, y, lon[x, y], lat[x, y], pt_gee
@@ -38,3 +39,4 @@ if __name__ == "__main__":
     for this_ax in ax:
         this_ax.set_ylabel('GEE')
     ax[1].set_xlabel('tstep')
+    fig.savefig('128_48.pdf')
