@@ -33,16 +33,15 @@ Program CASA_genIOAPI
        NROWS= 181,&
        NCOLS= 288,&
        NSTEPS= 2920,&
-       OUT_NROWS = 181,&
-       OUT_NCOLS =288,&
+       OUT_NROWS = 179,&
+       OUT_NCOLS =287,&
        OUT_NSTEPS = 2920,&
        dawn = 13,dusk=3 !UTC
   real, allocatable,dimension(:)::inlats
   real,allocatable,dimension(:)::inlons !one-d arrays of lats and lons
   real, dimension(:, :, :), allocatable::in_co2_flux1, in_co2_flux_per_grid
   real, dimension(out_ncols,out_nrows)::latgrid, longrid !2d arrays of lats and lons
-  real, dimension(OUT_NCOLS,OUT_NROWS,nsteps)::CO2_FLUX,casa_temp
-  real,dimension(out_ncols,out_nrows)::modis_temp
+  real, dimension(OUT_NCOLS,OUT_NROWS,1)::casa_temp
   real,dimension(3,81600)::modis_ratios
   character(len=255)::FILENAME_modis,varname,filename1
   real::modis_total, d, ratio, finlat, finlon,lat,lon,conversion
@@ -135,9 +134,13 @@ Program CASA_genIOAPI
   ! Attempt an I/O api data write. For whatever reason the convention is to
   !     loop through time and write one 2d grid at a time.
   do t=1,out_nsteps
-     ! if(.not.write3('outname',vname3d(1),jdate,jtime,in_co2_flux1(:,:,t))) then
      in_co2_flux_per_grid(:,:,t) = in_co2_flux_per_grid(:,:,t) *83259093
-     if(.not.write3('outname',vname3d(1),jdate,jtime,in_co2_flux_per_grid(1:NCOLS-1, 2:NROWS-1, t))) then
+     do j=1, OUT_NCOLS
+        do i=1, OUT_NROWS
+           casa_temp(j, i, 1) = in_co2_flux_per_grid(j+1, i+1, t)
+        ENDDO
+     ENDDO
+     if(.not.write3('outname',vname3d(1),jdate,jtime,casa_temp)) then
         print*,'writing error'
         stop
      ENDIF
