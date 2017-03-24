@@ -27,7 +27,9 @@ def get_casa_raw(pt_lat=37, pt_lon=-121.25):
     lat[x, y] (float): the latitude of [x, y] in the CASA grid
     pt_gee (np.ndarray): CASA GEE time series for [x, y]
     """
-    nc = netCDF4.Dataset("/project/projectdirs/m2319/Data/CASA/GEE.3hrly.1x1.25.2015.nc")
+    nc = netCDF4.Dataset(os.path.join("/", "project", "projectdirs",
+                                      "m2319", "Data", "CASA",
+                                      "GEE.3hrly.1x1.25.2015.nc"))
     lon = nc.variables['lon'][:]
     lat = nc.variables['lat'][:]
     lon, lat = np.meshgrid(lon, lat)
@@ -58,13 +60,19 @@ def get_casa_raw_ioapi(pt_lat=37, pt_lon=-121.25):
     lat[x, y] (float): the latitude of [x, y] in the CASA I/O API grid
     pt_gee (np.ndarray): CASA I/O API GEE time series for [x, y]
     """
-    nc = netCDF4.Dataset('/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/CASA/casa_raw_grid.nc')
+    nc = netCDF4.Dataset(os.path.join('/', 'global', 'homes', 't',
+                                      'twhilton', 'Code', 'Regrid',
+                                      'VulcanRegrid', 'CASA',
+                                      'casa_raw_grid.nc'))
     lon = nc.variables['LON'][0, 0, ...]
     lat = nc.variables['LAT'][0, 0, ...]
     nc.close()
     x, y = find_nearest_stem_xy(pt_lon, pt_lat, lon, lat)
     # x, y = (127, 47)
-    nc = netCDF4.Dataset('/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/CASA/tim_test3.nc')
+    nc = netCDF4.Dataset(os.path.join('/global', 'homes', 't',
+                                      'twhilton', 'Code', 'Regrid',
+                                      'VulcanRegrid', 'CASA',
+                                      'tim_test3.nc'))
     pt_gee = nc.variables['CO2_FLUX'][:, 0, x, y]
     return x, y, lon[x, y], lat[x, y], pt_gee
 
