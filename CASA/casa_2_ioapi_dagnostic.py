@@ -8,9 +8,9 @@ def get_casa_raw(pt_lat=37, pt_lon=-121.25):
     nc = netCDF4.Dataset("/project/projectdirs/m2319/Data/CASA/GEE.3hrly.1x1.25.2015.nc")
     lon = nc.variables['lon'][:]
     lat = nc.variables['lat'][:]
-    lon, lat = np.meshgrid(lon, lat, indexing='ij')
+    lon, lat = np.meshgrid(lon, lat)
     x, y = find_nearest_stem_xy(pt_lon, pt_lat, lon, lat)
-    pt_gee = nc.variables['GEE'][:, y, x]
+    pt_gee = nc.variables['GEE'][:, x, y]
     nc.close()
     return x, y, lon[x, y], lat[x, y], pt_gee
 
