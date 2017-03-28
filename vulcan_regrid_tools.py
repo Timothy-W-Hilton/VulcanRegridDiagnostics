@@ -70,12 +70,13 @@ class vulcan_grid_mapper(object):
         """get (lon, lat) coordinates of Vulcan grid corners
         """
         corners = {'0_0': (self.v_lon[0, 0], self.v_lat[0, 0]),
-                   '0_n': (self.v_lon[0, self.jmax - 1],
-                           self.v_lat[0, self.jmax - 1]),
-                   'n_0': (self.v_lon[self.imax - 1, 0],
-                           self.v_lat[self.imax - 1, 0]),
-                   'n_n': (self.v_lon[self.imax - 1, self.jmax - 1],
-                           self.v_lat[self.imax - 1, self.jmax - 1])}
+                   '0_{}'.format(self.jmax): (self.v_lon[0, self.jmax - 1],
+                                              self.v_lat[0, self.jmax - 1]),
+                   '{}_0'.format(self.imax): (self.v_lon[self.imax - 1, 0],
+                                              self.v_lat[self.imax - 1, 0]),
+                   '{}_{}'.format(self.imax, self.jmax): (
+                       self.v_lon[self.imax - 1, self.jmax - 1],
+                       self.v_lat[self.imax - 1, self.jmax - 1])}
         return corners
 
     def draw_map(self):
@@ -128,7 +129,9 @@ def get_vulcan_griddesc_parameters(mapper):
     crnrs = mapper.get_csv_corners()
     for k, this_corner in crnrs.items():
         print '{}: ({} E, {} N) (m): {}, {}'.format(
-            k, *(this_corner + vulcanproj(*this_corner)))
+            *((k.replace('_', ', '), ) +
+              this_corner +
+              vulcanproj(*this_corner)))
     print '(-97.0 W, 39.0 N) (m): ', vulcanproj(-97.0, 40.0)
 
     g = pyproj.Geod(ellps='WGS84')
@@ -137,7 +140,8 @@ def get_vulcan_griddesc_parameters(mapper):
     # 5000 m west and then 5000 m south from the SW corner cell in Vulcan
     # CSV.  Output above shows that the southwest corner of Vulcan grid is
     # in CSV cell (0, 507)
-    (lon0, lat0, az) = g.fwd(crnrs['0_n'][0], crnrs['0_n'][1], 270, 5000)
+    LL = crnrs['0_{}'.format(mapper.jmax)]
+    (lon0, lat0, az) = g.fwd(LL[0], LL[1], 270, 5000)
     (lon_orig, lat_orig, az) = g.fwd(lon0, lat0, 180, 5000)
     print '(lon orig, lat orig): {}, {}'.format(lon_orig, lat_orig)
     print '(xorig, yorig): {}, {}'.format(*vulcanproj(lon_orig, lat_orig))
