@@ -18,8 +18,8 @@ class vulcan_grid_mapper(object):
         """ read longitude, latitude data from I/O API latlon
         """
         nc = netCDF4.Dataset(self.fname_ioapi_latlon_output)
-        self.v_lat = nc.variables['LAT'][0, 0, ...]
-        self.v_lon = nc.variables['LON'][0, 0, ...]
+        self.i_lat = nc.variables['LAT'][0, 0, ...]
+        self.i_lon = nc.variables['LON'][0, 0, ...]
         nc.close()
 
     def parse_vulcan_csv(self, fname_v_csv):
@@ -30,13 +30,25 @@ class vulcan_grid_mapper(object):
         ddy containing longitude and latitude, respectively.
         """
         df = pd.read_csv(fname_v_csv)
-        imax = df['i'].max()
-        jmax = df['j'].max()
-        self.i_lon = np.ndarray((imax, jmax))
-        self.i_lat = np.ndarray((imax, jmax))
+        self.imax = df['i'].max()
+        self.jmax = df['j'].max()
+        self.v_lon = np.ndarray((self.imax, self.jmax))
+        self.v_lat = np.ndarray((self.imax, self.jmax))
         for this_row in df.itertuples():
-            self.i_lon[this_row.i - 1, this_row.j - 1] = this_row.ddx
-            self.i_lat[this_row.i - 1, this_row.j - 1] = this_row.ddy
+            self.v_lon[this_row.i - 1, this_row.j - 1] = this_row.ddx
+            self.v_lat[this_row.i - 1, this_row.j - 1] = this_row.ddy
+
+    def get_csv_corners(self):
+        """get (lon, lat) coordinates of Vulcan grid corners
+        """
+        corners = {'0_0': (self.v_lon[0, 0], self.v_lat[0, 0]),
+                   '0_n': (self.v_lon[0, self.jmax - 1],
+                           self.v_lat[0, self.jmax - 1]),
+                   'n_0': (self.v_lon[self.imax - 1, 0],
+                           self.v_lat[self.imax - 1, 0]),
+                   'n_n': (self.v_lon[self.imax - 1, self.jmax - 1],
+                           self.v_lat[self.imax - 1, self.jmax - 1])}
+        return corners
 
     def draw_map(self):
         """Draw Vulcan CSV and I/O API latlon grids to a map
