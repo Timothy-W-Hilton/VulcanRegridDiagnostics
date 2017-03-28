@@ -1,11 +1,13 @@
 !  coords --2 lines:  name; type, P-alpha, P-beta, P-gamma, xcent, ycent
 'VULCAN_PROJ'        !  projection described in http://vulcan.project.asu.edu/pdf/fileset.readme.v2.2.pdf
-2, 33.0, 45.0, -97.0, -97.0, 39.0
+2, 33.0, 45.0, -97.0, -97.0, 40.0
 'STEM_9KM'    ! Gara's 9-km STEM domain projection
 2, 30.0, 60.0, -98.0, -121.76, 37.76
 ' '                                                               ! end coords
 'VULCANGRID'
-'VULCAN_PROJ'  -2732128.1, -1483778.3, 10000, 10000, 507, 355, 1
+'VULCAN_PROJ'  -0672128.1, -1904367.8, 10000, 10000, 507, 355, 1
 'STEM_9KM_GRD'
-'STEM_9KM'    -103316.2, -393635.4, 9000, 9000, 50, 50, 1
+'STEM_9KM'    -103316.21078735124, -393635.3824544301, 9000, 9000, 50, 50, 1
 ' '                                                !  end grids.
+
+!'STEM_9KM'    -4053316.2, -403635.4, 9000, 9000, 1000, 300, 1

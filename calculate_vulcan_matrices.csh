@@ -6,13 +6,13 @@
 ####SBATCH -L project     #note: specify license need for the file systems your job needs, such as SCRATCH,project
 ####SBATCH -o VULCAN.%A.out
 
-setenv ROOTDIR /global/cscratch1/sd/twhilton/Vulcan
-setenv COL_REFINEMENT  5
-setenv ROW_REFINEMENT  5
+setenv SCRATCHDIR /global/cscratch1/sd/twhilton/Vulcan
+setenv COL_REFINEMENT  3
+setenv ROW_REFINEMENT  3
 setenv SCALEFAC        1.0
-setenv GRIDDESC        $ROOTDIR/GRIDDESC_VULCAN
-setenv MATRIX          $ROOTDIR/VULCANto9kmSTEMmatrix
-setenv MATTXT          $ROOTDIR/VULCANto9kmSTEMmattxt
+setenv GRIDDESC        $HOME/Code/Regrid/VulcanRegrid/GRIDDESC_VULCAN
+setenv MATRIX          $SCRATCHDIR/VULCANto9kmSTEMmatrix
+setenv MATTXT          $SCRATCHDIR/VULCANto9kmSTEMmattxt
 
 rm -fv $MATRIX
 rm -fv $MATTXT
@@ -29,10 +29,10 @@ DONE
 echo "finished mtxcalc: "
 date
 
-setenv IN_DATA $ROOTDIR/reversed_vulcan_ioapi_1jan.nc
-setenv OUT_DATA $ROOTDIR/vulcan_fossilCO2_stem9km_ioapi.nc
+setenv IN_DATA $SCRATCHDIR/reversed_vulcan_ioapi_1jan.nc
+setenv OUT_DATA $SCRATCHDIR/vulcan_fossilCO2_stem9km_ioapi.nc
 
-rm -fv OUT_DATA
+rm -fv $OUT_DATA
 
 echo "starting mtxcple: "
 date

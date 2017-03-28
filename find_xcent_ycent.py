@@ -1,15 +1,38 @@
+"""LCC projection: Lambert Conformal Conic
+"""
+
 from mpl_toolkits.basemap import Basemap
-import mpl_toolkits
+import mpl_toolkits  # to get needed parameters for LCC projection
 import pyproj
+import pandas as pd
+
+
+def get_vulcan_domain_corners(fname='./vulcangrid.10.2012.csv'):
+    """find and print the (longitude, latitude) coordinates of the four
+    corners of the Vulcan grid.
+
+    """
+    df = pd.read_csv(fname)
+    print df.loc[(df.i == df.i.min()) & (df.j == df.j.min())]
+    print df.loc[(df.i == df.i.min()) & (df.j == df.j.max())]
+    print df.loc[(df.i == df.i.max()) & (df.j == df.j.min())]
+    print df.loc[(df.i == df.i.max()) & (df.j == df.j.max())]
+
+# def try_proj():
+#     """attempt to see whether pyproj delivers the same x, y results as
+#     basemap
+#     """
+#     p_vulcan = pyproj.Proj('')
+
 
 print "parameters needed for Vulcan Lambert conformal conic projection:\n"
 print mpl_toolkits.basemap.projection_params['lcc']
 map = Basemap(projection='lcc', lat_1=45.0, lat_2=33.0,
-              lon_0=-97.0, lat_0=39.0,
+              lon_0=-97.0, lat_0=40.0,
               llcrnrlon=-122.9833065, llcrnrlat=22.26005742,
               urcrnrlon=-62.18676839, urcrnrlat=53.4190285)
-print '(-122.9833065 W, 22.26005742 N) (m): ', map(-122.9833065, 22.26005742)
-print '(-97.0 W, 39.0 N) (m): ', map(-97.0, 39.0)
+print '(-122.9833065 W, 22.2605742 N) (m): ', map(-122.9833065, 22.26005742)
+print '(-97.0 W, 39.0 N) (m): ', map(-97.0, 40.0)
 
 print "\n\n==================================================\n\n"
 g = pyproj.Geod(ellps='WGS84')
