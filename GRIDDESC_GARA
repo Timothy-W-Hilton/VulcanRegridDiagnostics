@@ -1,0 +1,15 @@
+!  coords --2 lines:  name; type, P-alpha, P-beta, P-gamma, xcent, ycent
+'CASA_PROJ'        !  the lat-lon coordinate system
+1,0.0D0, 0.0D0, 0.0D0, 0.0D0, 0.0D0
+'VULCAN_PROJ'        !  projection described in http://vulcan.project.asu.edu/pdf/fileset.readme.v2.2.pdf
+2, 33.0, 45.0, -97.0, -97.0, 40.0
+'STEM_9KM'    ! Gara's 9-km STEM domain projection
+2, 30.0, 60.0, -98.0, -121.76, 37.66001
+' '                                                               ! end coords
+'VULCANGRID'
+'VULCAN_PROJ'  -2742431.14322, -1591506.71603, 10000, 10000, 507, 355, 1
+'CASAGRID'
+'CASA_PROJ'  -179.375, -89.5, 1.25, 1., 287, 179, 1
+'STEM_9KM_GRD'
+'STEM_9KM'    -2239190.5052306354, 76666.45703932519, 9000, 9000, 50, 50, 1
+' '                                                !  end grids.

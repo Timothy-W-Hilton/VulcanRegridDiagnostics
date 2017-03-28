@@ -28,7 +28,7 @@ fname_ioapi_latlon = os.path.join('/', 'global', 'homes', 't',
                                   'twhilton', 'Code', 'Regrid',
                                   'VulcanRegrid', 'vulcan_latlon.nc')
 mapper = vulcan_grid_mapper(fname_ioapi_latlon, fname_v_csv)
-mapper.parse_vulcan_csv(fname_v_csv)
+mapper.parse_vulcan_csv()
 
 print "\n\n==================================================\n\n"
 print "USING BASEMAP"
@@ -49,22 +49,19 @@ vulcanproj = pyproj.Proj(("+proj=lcc +lat_1=33.0 +lat_2=45.0"
                           " +a=6378137.00 +b=6356752.3142 "
                           "+towgs84=0,0,0 +no_defs"))
 crnrs = mapper.get_csv_corners()
-for this_corner in crnrs.values():
-    print '({} E, {} N) (m): {}, {}'.format(
+for k, this_corner in crnrs.items():
+    print '{}: ({} E, {} N) (m): {}, {}'.format(k,
         *(this_corner + vulcanproj(*this_corner)))
 print '(-97.0 W, 39.0 N) (m): ', vulcanproj(-97.0, 40.0)
 
-print "\n\n==================================================\n\n"
-g = pyproj.Geod(ellps='WGS84')
-(lon0, lat0, az) = g.fwd(-121.76, 37.76, 270, 225000)
-# (-124.31276282453157, 37.73234744779659, 88.4371269105583)
-(lon1, lat1, az) = g.fwd(lon0, lat0, 180, 225000)
-# (-124.31276282453157, 35.704816457104535, 0.0)
 
-print "parameters needed for STEM 9 km Lambert conformal conic projection:\n"
-map = Basemap(projection='lcc', lat_1=60.0, lat_2=30.0,
-              lon_0=-98.0, lat_0=37.66,
-              llcrnrlon=-124.0, llcrnrlat=32.0,
-              urcrnrlon=-116.0, urcrnrlat=42.0)
-print "bottom left corner of domain (lon, lat):", lon1, lat1
-print 'bottom left corner of domain (x, y) (m): ', map(lon1, lat1)
+g = pyproj.Geod(ellps='WGS84')
+# Vulcan grid cells are 10 km.  Vulcan CSV provides cell centers, but
+# I/O API wants the cell corner in xorig, yorig.  So we need to go
+# 5000 m west and then 5000 m south from the SW corner cell in Vulcan
+# CSV.  Output above shows that the southwest corner of Vulcan grid is
+# in CSV cell (0, 507)
+(lon0, lat0, az) = g.fwd(crnrs['0_n'][0], crnrs['0_n'][1], 270, 5000)
+(lon_orig, lat_orig, az) = g.fwd(lon0, lat0, 180, 5000)
+print '(lon orig, lat orig): {}, {}'.format(lon_orig, lat_orig)
+print '(xorig, yorig): {}, {}'.format(*vulcanproj(lon_orig, lat_orig))

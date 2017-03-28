@@ -14,7 +14,7 @@ class vulcan_grid_mapper(object):
         self.fname_ioapi_latlon_output = fname_ioapi_latlon_output
         self.fname_vulcan_csv = fname_vulcan_csv
 
-    def parse_ioapi_latlon(self, fname_ioapi_latlon_output):
+    def parse_ioapi_latlon(self):
         """ read longitude, latitude data from I/O API latlon
         """
         nc = netCDF4.Dataset(self.fname_ioapi_latlon_output)
@@ -22,14 +22,14 @@ class vulcan_grid_mapper(object):
         self.i_lon = nc.variables['LON'][0, 0, ...]
         nc.close()
 
-    def parse_vulcan_csv(self, fname_v_csv):
+    def parse_vulcan_csv(self):
         """place longitude, latitude data from Vulcan CSV into 2-D arrays
 
         Data frame df must have columns i, j,
         ddx, ddy, with i and j containing the array indices, and ddx and
         ddy containing longitude and latitude, respectively.
         """
-        df = pd.read_csv(fname_v_csv)
+        df = pd.read_csv(self.fname_vulcan_csv)
         self.imax = df['i'].max()
         self.jmax = df['j'].max()
         self.v_lon = np.ndarray((self.imax, self.jmax))
@@ -77,11 +77,14 @@ class vulcan_grid_mapper(object):
 
 
 if __name__ == "__main__":
-    fname_v_csv = os.path.join('/', 'project', 'projectdirs',
-                               'm2319', 'Data', 'VULCAN',
-                               'vulcangrid.10.2012.csv')
-    fname_ioapi_latlon = os.path.join('/', 'global', 'homes', 't',
-                                      'twhilton', 'Code', 'Regrid',
-                                      'VulcanRegrid', 'vulcan_latlon.nc')
-    mapper = vulcan_grid_mapper(fname_v_csv, fname_ioapi_latlon)
+    mapper = vulcan_grid_mapper(os.path.join('/', 'global', 'homes', 't',
+                                             'twhilton', 'Code', 'Regrid',
+                                             'VulcanRegrid',
+                                             'vulcan_latlon.nc'),
+                                os.path.join('/', 'project', 'projectdirs',
+                                             'm2319', 'Data', 'VULCAN',
+                                             'vulcangrid.10.2012.csv'))
+    mapper.parse_vulcan_csv()
+    mapper.parse_ioapi_latlon()
+    mapper.draw_map()
     plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
