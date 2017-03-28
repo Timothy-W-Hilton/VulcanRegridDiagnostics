@@ -32,11 +32,18 @@ class vulcan_grid_mapper(object):
     """
 
     def __init__(self, fname_ioapi_latlon_output, fname_vulcan_csv):
+        """class constructor
+
+        ARGS:
+        fname_ioapi_latlon_output (str): full path to Vulcan CSV cile
+        fname_vulcan_csv (str): full path to I/O API latlon output for
+            grid VULCANGRID in Vulcan GRIDDESC file
+        """
         self.fname_ioapi_latlon_output = fname_ioapi_latlon_output
         self.fname_vulcan_csv = fname_vulcan_csv
 
     def parse_ioapi_latlon(self):
-        """ read longitude, latitude data from I/O API latlon
+        """ read longitude, latitude data from I/O API latlon output
         """
         nc = netCDF4.Dataset(self.fname_ioapi_latlon_output)
         self.i_lat = nc.variables['LAT'][0, 0, ...]
@@ -137,6 +144,7 @@ def get_vulcan_griddesc_parameters(mapper):
 
 
 if __name__ == "__main__":
+    # parse Vulcan CSV grid coordinates, I/O API coordinates
     fname_v_csv = os.path.join('/', 'project', 'projectdirs',
                                'm2319', 'Data', 'VULCAN',
                                'vulcangrid.10.2012.csv')
@@ -146,8 +154,8 @@ if __name__ == "__main__":
     mapper = vulcan_grid_mapper(fname_ioapi_latlon, fname_v_csv)
     mapper.parse_vulcan_csv()
     mapper.parse_ioapi_latlon()
-
+    # calculate xorig, yorig for Vulcan grid GRIDDESC entry
     get_vulcan_griddesc_parameters(mapper)
-
+    # draw map comparing Vulcan CSV grid to I/O API grid
     mapper.draw_map()
     plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
