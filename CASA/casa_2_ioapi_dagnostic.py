@@ -66,7 +66,7 @@ def get_casa_ioapi(fname_latlon, fname_gee, pt_lat=37, pt_lon=-121.25):
     lat = nc.variables['LAT'][0, 0, ...]
     nc.close()
     x, y = find_nearest_stem_xy(pt_lon, pt_lat, lon, lat)
-    # x, y = (24, 28)
+    x, y = (24, 28)
     nc = netCDF4.Dataset(fname_gee)
     pt_gee = nc.variables['CO2_FLUX'][:, 0, x, y]
     return x, y, lon[x, y], lat[x, y], pt_gee
@@ -108,8 +108,8 @@ if __name__ == "__main__":
     for this_ax in ax:
         this_ax.set_ylabel('GEE')
     ax[0].set_ylim((0, -3.0e-7))
-    ax[1].set_ylim((0, -3.0e11))
-    ax[2].set_ylim((0, -3.0e11))
+    # ax[1].set_ylim((0, -3.0e11))
+    # ax[2].set_ylim((0, -3.0e11))
     ax[2].set_xlabel('tstep')
     fname = '{}_{}.pdf'.format(x_ioapi, y_ioapi)
     print 'saving {}'.format(fname)
