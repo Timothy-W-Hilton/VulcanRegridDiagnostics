@@ -27,6 +27,7 @@ import netCDF4
 import matplotlib.pyplot as plt
 from IOAPIpytools import ioapi_pytools
 
+
 class vulcan_grid_mapper(object):
     """parse data from vulcan csv file, I/O API latlon output, draw to map
     """
@@ -65,17 +66,18 @@ class vulcan_grid_mapper(object):
         """
         nc = netCDF4.Dataset(fname_flux_native)
         vulcan_flux_native = nc.variables['emissions'][...]
+        m2_per_9km_gridcell = 9e3 * 9e3
         nc.close()
         nc = netCDF4.Dataset(fname_latlon_9km)
         lon = nc.variables['LON'][0, 0, ...]
         lat = nc.variables['LAT'][0, 0, ...]
         nc.close()
         nc = netCDF4.Dataset(fname_flux_9km)
-        vulcan_flux_9km = nc.variables['CO2_FLUX'][0, 0, ...]
+        vulcan_flux_9km_percell = nc.variables['CO2_FLUX'][0, 0, ...]
+        m2_per_9km_gridcell = 9e3 * 9e3
+        vulcan_flux_9km = vulcan_flux_9km_percell / m2_per_9km_gridcell
         nc.close()
-        vmin = vulcan_flux_native.min()
-        vmax = vulcan_flux_native.max()
-        fig, ax = plt.subplots(nrows=1, ncols=2)
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12, 8))
         bmap = [Basemap(projection='lcc', lat_1=33.0, lat_2=45.0, lat_0=40.0,
                         lon_0=-97.0,
                         resolution='i',
@@ -93,15 +95,25 @@ class vulcan_grid_mapper(object):
         #                   llcrnrlat=self.i_lat[0, 0] - 5,
         #                   llcrnrlon=self.i_lon[0, 0] - 5,
         #                   ax=ax[1])
+        vmin = vulcan_flux_9km.min()
+        vmax = vulcan_flux_9km.max()
         for this_map in bmap:
             this_map.drawcoastlines()
-        bmap[0].pcolormesh(lon, lat, vulcan_flux_9km, latlon=True,
-                           cmap=plt.get_cmap('Blues'))
+        pcm_9km = bmap[0].pcolormesh(lon, lat, vulcan_flux_9km,
+                                     latlon=True,
+                                     cmap=plt.get_cmap('Blues'),
+                                     vmin=vmin, vmax=vmax)
         ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
-        bmap[1].pcolormesh(self.i_lon, self.i_lat,
-                           np.flipud(vulcan_flux_native[0, ...]), latlon=True,
-                           vmin=0, vmax=10, cmap=plt.get_cmap('Blues'))
+        plt.colorbar(pcm_9km, ax=ax[0])
+        pcm_native = bmap[1].pcolormesh(
+            self.v_lon, self.v_lat,
+            vulcan_flux_native[0, ...].transpose(),
+            latlon=True,
+            cmap=plt.get_cmap('Blues'),
+            vmin=vmin, vmax=vmax)
         ax[1].set_title('Vulcan CO2 flux, native grid')
+        plt.colorbar(pcm_native, ax=ax[1])
+        fig.savefig('vulcan_regrid_diagnostic_maps.png')
         return (fig, bmap)
 
     def parse_vulcan_csv(self):
