@@ -50,6 +50,51 @@ class vulcan_grid_mapper(object):
         self.i_lon = nc.variables['LON'][0, 0, ...]
         nc.close()
 
+    def parse_regridded_vulcan_flux(self,
+                                    fname_flux_9km,
+                                    fname_latlon_9km,
+                                    fname_flux_native):
+        """parse I/O API file containing Vulcan fluxes on the STEM 9-km grid
+
+        The fluxes are assumed to (and must) be in the variable CO2_FLUX.
+
+        ARGS:
+        fname_flux_9km (string): full path to the regridded I/O API netcdf file
+        fname_latlon_9km (string): full path to the I/O API latlon output
+            containing hte regridded longitue and latitude coords
+        """
+        nc = netCDF4.Dataset(fname_flux_native)
+        vulcan_flux_native = nc.variables['emissions'][...]
+        nc.close()
+        nc = netCDF4.Dataset(fname_latlon_9km)
+        lon = nc.variables['LON'][0, 0, ...]
+        lat = nc.variables['LAT'][0, 0, ...]
+        nc.close()
+        nc = netCDF4.Dataset(fname_flux_9km)
+        vulcan_flux_9km = nc.variables['CO2_FLUX'][0, 0, ...]
+        nc.close()
+        vmin = vulcan_flux_native.min()
+        vmax = vulcan_flux_native.max()
+        fig, ax = plt.subplots(nrows=1, ncols=2)
+        bmap = [Basemap(projection='lcc', lat_1=33.0, lat_2=45.0, lat_0=40.0,
+                        lon_0=-97.0,
+                        resolution='i',
+                        urcrnrlat=lat[-1, -1],
+                        urcrnrlon=lon[-1, -1],
+                        llcrnrlat=lat[0, 0],
+                        llcrnrlon=lon[0, 0],
+                        ax=this_ax)
+                for this_ax in ax]
+        for this_map in bmap:
+            this_map.drawcoastlines()
+        bmap[0].pcolormesh(lon, lat, vulcan_flux_9km, latlon=True,
+                           vmin=vmin, vmax=vmax)
+        ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
+        bmap[1].pcolormesh(self.i_lon, self.i_lat,
+                           vulcan_flux_native[9, ...], latlon=True)
+        ax[1].set_title('Vulcan CO2 flux, native grid')
+        return (fig, bmap)
+
     def parse_vulcan_csv(self):
         """place longitude, latitude data from Vulcan CSV into 2-D arrays
 
@@ -168,6 +213,9 @@ if __name__ == "__main__":
     ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
                              fname_gridfile='vulcan_latlon.nc',
                              gridname='VULCANGRID')
+    ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
+                             fname_gridfile='stem_9km_latlon.nc',
+                             gridname='STEM_9KM_GRD')
     # draw map comparing Vulcan CSV grid to I/O API grid
     mapper.draw_map()
     plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
@@ -179,5 +227,7 @@ if __name__ == "__main__":
                                           out_grid='STEM_9KM_GRD',
                                           col_refinement=5,
                                           row_refinement=5)
-    fname_vulcan_raw = os.path.join('/', 'project', 'projectdirs', 'm2319', 'transfer', 'reversed_vulcan_fossilCO2_stem9km_ioapi.nc')
-    ioapi_pytools.run_regrid(fname_raw=fname_vulcan_raw, fname_regridded='vulcan_test.nc', fname_matrix='vulcan_mat', fname_mattxt='vulcan_mat.txt')
+    # fname_vulcan_raw = os.path.join('/', 'project', 'projectdirs', 'm2319', 'transfer', 'reversed_vulcan_fossilCO2_stem9km_ioapi.nc')
+    # ioapi_pytools.run_regrid(fname_raw=fname_vulcan_raw, fname_regridded='vulcan_test.nc', fname_matrix='vulcan_mat', fname_mattxt='vulcan_mat.txt')
+    plt.close('all')
+    foo = mapper.parse_regridded_vulcan_flux('/project/projectdirs/m2319/transfer/vulcan_fossilCO2_pergrid_stem9km_ioapi.nc', '/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/stem_9km_latlon.nc', '/project/projectdirs/m2319/Data/VULCAN/vulcan.US.10k.sp.v2.2.nc')
