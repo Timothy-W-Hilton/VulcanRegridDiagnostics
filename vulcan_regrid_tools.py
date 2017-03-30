@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 import netCDF4
 import matplotlib.pyplot as plt
-
+from IOAPIpytools import ioapi_pytools
 
 class vulcan_grid_mapper(object):
     """parse data from vulcan csv file, I/O API latlon output, draw to map
@@ -118,7 +118,12 @@ def get_vulcan_domain_corners(fname='./vulcangrid.10.2012.csv'):
 
 
 def get_vulcan_griddesc_parameters(mapper):
+    """calculate xorig, yorig for Vulcan GRIDDESC entry
 
+    note: I tried using a spherical Earth
+    (" +a=6370000.00 +b=6370000 "), and it made the native Vulcan--I/O
+    API grid match worse.  -TWH
+    """
     print "\n\n==================================================\n\n"
     print "USING PYPROJ"
 
@@ -160,6 +165,19 @@ if __name__ == "__main__":
     mapper.parse_ioapi_latlon()
     # calculate xorig, yorig for Vulcan grid GRIDDESC entry
     get_vulcan_griddesc_parameters(mapper)
+    ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
+                             fname_gridfile='vulcan_latlon.nc',
+                             gridname='VULCANGRID')
     # draw map comparing Vulcan CSV grid to I/O API grid
     mapper.draw_map()
     plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
+
+    ioapi_pytools.calculate_regrid_matrix(fname_griddesc='GRIDDESC_GARA',
+                                          fname_matrix='vulcan_mat',
+                                          fname_mattxt='vulcan_mat.txt',
+                                          in_grid='VULCANGRID',
+                                          out_grid='STEM_9KM_GRD',
+                                          col_refinement=5,
+                                          row_refinement=5)
+    fname_vulcan_raw = os.path.join('/', 'project', 'projectdirs', 'm2319', 'transfer', 'reversed_vulcan_fossilCO2_stem9km_ioapi.nc')
+    ioapi_pytools.run_regrid(fname_raw=fname_vulcan_raw, fname_regridded='vulcan_test.nc', fname_matrix='vulcan_mat', fname_mattxt='vulcan_mat.txt')
