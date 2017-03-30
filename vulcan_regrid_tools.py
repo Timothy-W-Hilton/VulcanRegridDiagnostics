@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 import netCDF4
 import matplotlib.pyplot as plt
-from IOAPIpytools import ioapi_pytools
+from IOAPIPytools import ioapi_pytools
 
 
 class vulcan_grid_mapper(object):
@@ -223,9 +223,11 @@ if __name__ == "__main__":
     fname_v_csv = os.path.join('/', 'project', 'projectdirs',
                                'm2319', 'Data', 'VULCAN',
                                'vulcangrid.10.2012.csv')
+    fname_v_csv = '/Users/tim/work/Data/Vulcan/vulcangrid.10.2012.csv'
     fname_ioapi_latlon = os.path.join('/', 'global', 'homes', 't',
                                       'twhilton', 'Code', 'Regrid',
                                       'VulcanRegrid', 'vulcan_latlon.nc')
+    fname_ioapi_latlon = '/Users/tim/work/Code/Regrid/VulcanRegrid/vulcan_latlon.nc'
     mapper = vulcan_grid_mapper(fname_ioapi_latlon, fname_v_csv)
     mapper.parse_vulcan_csv()
     mapper.parse_ioapi_latlon()
@@ -251,4 +253,7 @@ if __name__ == "__main__":
     # fname_vulcan_raw = os.path.join('/', 'project', 'projectdirs', 'm2319', 'transfer', 'reversed_vulcan_fossilCO2_stem9km_ioapi.nc')
     # ioapi_pytools.run_regrid(fname_raw=fname_vulcan_raw, fname_regridded='vulcan_test.nc', fname_matrix='vulcan_mat', fname_mattxt='vulcan_mat.txt')
     plt.close('all')
-    foo = mapper.parse_regridded_vulcan_flux('/project/projectdirs/m2319/transfer/vulcan_fossilCO2_pergrid_stem9km_ioapi.nc', '/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/stem_9km_latlon.nc', '/project/projectdirs/m2319/Data/VULCAN/vulcan.US.10k.sp.v2.2.nc')
+    # NERSC paths
+    # foo = mapper.parse_regridded_vulcan_flux('/project/projectdirs/m2319/transfer/vulcan_fossilCO2_pergrid_stem9km_ioapi.nc', '/global/homes/t/twhilton/Code/Regrid/VulcanRegrid/stem_9km_latlon.nc', '/project/projectdirs/m2319/Data/VULCAN/vulcan.US.10k.sp.v2.2.nc')
+    # tim macbook paths
+    foo = mapper.parse_regridded_vulcan_flux('vulcan_fossilCO2_pergrid_stem9km_ioapi_t0.nc', 'stem_9km_latlon.nc', 'vulcan.US.10k.sp.v2.2_t0.nc')
