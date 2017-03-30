@@ -85,13 +85,22 @@ class vulcan_grid_mapper(object):
                         llcrnrlon=lon[0, 0],
                         ax=this_ax)
                 for this_ax in ax]
+        # bmap[1] = Basemap(projection='lcc', lat_1=33.0, lat_2=45.0, lat_0=40.0,
+        #                   lon_0=-97.0,
+        #                   resolution='i',
+        #                   urcrnrlat=self.i_lat[-1, -1] + 5,
+        #                   urcrnrlon=self.i_lon[-1, -1] + 5,
+        #                   llcrnrlat=self.i_lat[0, 0] - 5,
+        #                   llcrnrlon=self.i_lon[0, 0] - 5,
+        #                   ax=ax[1])
         for this_map in bmap:
             this_map.drawcoastlines()
         bmap[0].pcolormesh(lon, lat, vulcan_flux_9km, latlon=True,
-                           vmin=vmin, vmax=vmax)
+                           cmap=plt.get_cmap('Blues'))
         ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
         bmap[1].pcolormesh(self.i_lon, self.i_lat,
-                           vulcan_flux_native[9, ...], latlon=True)
+                           np.flipud(vulcan_flux_native[0, ...]), latlon=True,
+                           vmin=0, vmax=10, cmap=plt.get_cmap('Blues'))
         ax[1].set_title('Vulcan CO2 flux, native grid')
         return (fig, bmap)
 
@@ -210,23 +219,23 @@ if __name__ == "__main__":
     mapper.parse_ioapi_latlon()
     # calculate xorig, yorig for Vulcan grid GRIDDESC entry
     get_vulcan_griddesc_parameters(mapper)
-    ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
-                             fname_gridfile='vulcan_latlon.nc',
-                             gridname='VULCANGRID')
-    ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
-                             fname_gridfile='stem_9km_latlon.nc',
-                             gridname='STEM_9KM_GRD')
-    # draw map comparing Vulcan CSV grid to I/O API grid
-    mapper.draw_map()
-    plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
+    # ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
+    #                          fname_gridfile='vulcan_latlon.nc',
+    #                          gridname='VULCANGRID')
+    # ioapi_pytools.run_latlon(fname_griddesc='GRIDDESC_GARA',
+    #                          fname_gridfile='stem_9km_latlon.nc',
+    #                          gridname='STEM_9KM_GRD')
+    # # draw map comparing Vulcan CSV grid to I/O API grid
+    # mapper.draw_map()
+    # plt.gcf().savefig('vulcan_csv_ioapi_latlon.png')
 
-    ioapi_pytools.calculate_regrid_matrix(fname_griddesc='GRIDDESC_GARA',
-                                          fname_matrix='vulcan_mat',
-                                          fname_mattxt='vulcan_mat.txt',
-                                          in_grid='VULCANGRID',
-                                          out_grid='STEM_9KM_GRD',
-                                          col_refinement=5,
-                                          row_refinement=5)
+    # ioapi_pytools.calculate_regrid_matrix(fname_griddesc='GRIDDESC_GARA',
+    #                                       fname_matrix='vulcan_mat',
+    #                                       fname_mattxt='vulcan_mat.txt',
+    #                                       in_grid='VULCANGRID',
+    #                                       out_grid='STEM_9KM_GRD',
+    #                                       col_refinement=5,
+    #                                       row_refinement=5)
     # fname_vulcan_raw = os.path.join('/', 'project', 'projectdirs', 'm2319', 'transfer', 'reversed_vulcan_fossilCO2_stem9km_ioapi.nc')
     # ioapi_pytools.run_regrid(fname_raw=fname_vulcan_raw, fname_regridded='vulcan_test.nc', fname_matrix='vulcan_mat', fname_mattxt='vulcan_mat.txt')
     plt.close('all')
