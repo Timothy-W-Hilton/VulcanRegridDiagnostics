@@ -26,7 +26,7 @@ import numpy as np
 import netCDF4
 import matplotlib.pyplot as plt
 from IOAPIPytools import ioapi_pytools
-
+from timutils import colormap_nlevs
 
 class vulcan_grid_mapper(object):
     """parse data from vulcan csv file, I/O API latlon output, draw to map
@@ -98,14 +98,18 @@ class vulcan_grid_mapper(object):
                           llcrnrlat=self.v_lat[0, -1] - 5,
                           llcrnrlon=self.v_lon[0, -1] - 5,
                           ax=ax[2])
-        vmin = vulcan_flux_9km.min()
-        vmax = vulcan_flux_9km.max()
+        vulcan_min = vulcan_flux_9km.min()
+        vulcan_max = vulcan_flux_9km.max()
+        cmap, norm = colormap_nlevs.setup_colormap(vulcan_min, vulcan_max,
+                                                   nlevs=11,
+                                                   cmap=plt.get_cmap('Blues'),
+                                                   extend='max')
         for this_map in bmap:
             this_map.drawcoastlines()
         pcm_9km = bmap[0].pcolormesh(lon, lat, vulcan_flux_9km,
                                      latlon=True,
-                                     cmap=plt.get_cmap('Blues'),
-                                     vmin=vmin, vmax=vmax)
+                                     cmap=cmap,
+                                     norm=norm)
         ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
         plt.colorbar(pcm_9km, ax=ax[0], orientation='horizontal')
 
@@ -113,8 +117,8 @@ class vulcan_grid_mapper(object):
             self.v_lon, self.v_lat,
             vulcan_flux_native[0, ...].transpose(),
             latlon=True,
-            cmap=plt.get_cmap('Blues'),
-            vmin=0, vmax=110)
+            cmap=cmap,
+            norm=norm)
         ax[1].set_title('Vulcan CO2 flux, native grid')
         plt.colorbar(pcm_native, ax=ax[1], orientation='horizontal')
 
@@ -122,8 +126,8 @@ class vulcan_grid_mapper(object):
             self.v_lon, self.v_lat,
             vulcan_flux_native[0, ...].transpose(),
             latlon=True,
-            cmap=plt.get_cmap('Blues'),
-            vmin=vmin, vmax=vmax)
+            cmap=cmap,
+            norm=norm)
         ax[2].set_title('Vulcan CO2 flux, native grid')
         plt.colorbar(pcm_native, ax=ax[2], orientation='horizontal')
         fig.savefig('vulcan_regrid_diagnostic_maps.png')
