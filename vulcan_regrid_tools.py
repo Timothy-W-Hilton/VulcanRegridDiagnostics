@@ -107,7 +107,7 @@ class vulcan_grid_mapper(object):
                                      cmap=plt.get_cmap('Blues'),
                                      vmin=vmin, vmax=vmax)
         ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
-        plt.colorbar(pcm_9km, ax=ax[0])
+        plt.colorbar(pcm_9km, ax=ax[0], orientation='horizontal')
 
         pcm_native = bmap[1].pcolormesh(
             self.v_lon, self.v_lat,
@@ -116,7 +116,7 @@ class vulcan_grid_mapper(object):
             cmap=plt.get_cmap('Blues'),
             vmin=0, vmax=110)
         ax[1].set_title('Vulcan CO2 flux, native grid')
-        plt.colorbar(pcm_native, ax=ax[1])
+        plt.colorbar(pcm_native, ax=ax[1], orientation='horizontal')
 
         pcm_native = bmap[2].pcolormesh(
             self.v_lon, self.v_lat,
@@ -125,7 +125,7 @@ class vulcan_grid_mapper(object):
             cmap=plt.get_cmap('Blues'),
             vmin=vmin, vmax=vmax)
         ax[2].set_title('Vulcan CO2 flux, native grid')
-        plt.colorbar(pcm_native, ax=ax[2])
+        plt.colorbar(pcm_native, ax=ax[2], orientation='horizontal')
         fig.savefig('vulcan_regrid_diagnostic_maps.png')
         return (fig, bmap)
 
