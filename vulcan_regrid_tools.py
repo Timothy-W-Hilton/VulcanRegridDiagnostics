@@ -66,16 +66,19 @@ class vulcan_grid_mapper(object):
         """
         nc = netCDF4.Dataset(fname_flux_native)
         vulcan_flux_native = nc.variables['emissions'][...]
-        m2_per_9km_gridcell = 9e3 * 9e3
         nc.close()
         nc = netCDF4.Dataset(fname_latlon_9km)
         lon = nc.variables['LON'][0, 0, ...]
         lat = nc.variables['LAT'][0, 0, ...]
         nc.close()
         nc = netCDF4.Dataset(fname_flux_9km)
-        vulcan_flux_9km_percell = nc.variables['CO2_FLUX'][0, 0, ...]
-        m2_per_9km_gridcell = 9e3 * 9e3
-        vulcan_flux_9km = vulcan_flux_9km_percell / m2_per_9km_gridcell
+        vulcan_flux_9km = nc.variables['CO2_FLUX'][0, 0, ...]
+        # convert umol cell-1 s-1 to tonne cell-1 hour-1
+        s_per_hour = 60 * 60
+        # (12 g / mol) * (1e-6 mol / umol) * (1 tonne / 1000 * 1000 g)
+        tonne_per_umol = 12 * 1e-6 * 1e-3 * 1e-3
+        vulcan_flux_9km = vulcan_flux_9km * s_per_hour * tonne_per_umol
+        # vulcan_flux_9km = vulcan_flux_9km_percell / m2_per_9km_gridcell
         nc.close()
         fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(18, 8))
         bmap = [Basemap(projection='lcc', lat_1=33.0, lat_2=45.0, lat_0=40.0,
@@ -95,14 +98,13 @@ class vulcan_grid_mapper(object):
                           llcrnrlat=self.v_lat[0, -1] - 5,
                           llcrnrlon=self.v_lon[0, -1] - 5,
                           ax=ax[2])
-        vmin = vulcan_flux_9km.min()
-        vmax = vulcan_flux_9km.max()
+        # vmin = vulcan_flux_9km.min()
+        # vmax = vulcan_flux_9km.max()
         for this_map in bmap:
             this_map.drawcoastlines()
         pcm_9km = bmap[0].pcolormesh(lon, lat, vulcan_flux_9km,
                                      latlon=True,
-                                     cmap=plt.get_cmap('Blues'),
-                                     vmin=vmin, vmax=vmax)
+                                     cmap=plt.get_cmap('Blues'))
         ax[0].set_title('Vulcan CO2 flux regridded to STEM 9-km grid')
         plt.colorbar(pcm_9km, ax=ax[0])
 
@@ -111,7 +113,7 @@ class vulcan_grid_mapper(object):
             vulcan_flux_native[0, ...].transpose(),
             latlon=True,
             cmap=plt.get_cmap('Blues'),
-            vmin=vmin, vmax=vmax)
+            vmin=0, vmax=100)
         ax[1].set_title('Vulcan CO2 flux, native grid')
         plt.colorbar(pcm_native, ax=ax[1])
 
@@ -120,7 +122,7 @@ class vulcan_grid_mapper(object):
             vulcan_flux_native[0, ...].transpose(),
             latlon=True,
             cmap=plt.get_cmap('Blues'),
-            vmin=vmin, vmax=vmax)
+            vmin=0, vmax=100)
         ax[2].set_title('Vulcan CO2 flux, native grid')
         plt.colorbar(pcm_native, ax=ax[2])
         fig.savefig('vulcan_regrid_diagnostic_maps.png')
